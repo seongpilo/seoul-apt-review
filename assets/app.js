@@ -111,6 +111,7 @@
   }
 
   async function fetchJson(url) {
+    if (window.__DATA__ && window.__DATA__[url]) return window.__DATA__[url];
     const res = await fetch(url, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`${url} (HTTP ${res.status})`);
     return res.json();
@@ -526,7 +527,7 @@
       <div class="card-price">
         <span class="dep">${fmtEok(p.depositEok)}</span>
         <span class="rent">/ ${fmtMan(p.rentManwon)}</span>
-        <span class="ex">예시</span>
+        ${p.example !== false ? '<span class="ex">예시</span>' : ''}
       </div>
       <div class="card-foot">
         <span class="checks">${checks}</span>
