@@ -147,6 +147,31 @@
       renderList();
     });
 
+    $('#preset-target').addEventListener('click', () => {
+      state.maxDeposit = 5.5;
+      state.maxRent = 300;
+      $('#f-deposit').value = 5.5;
+      $('#f-rent').value = 300;
+      $('#f-deposit-val').textContent = '5.5억';
+      $('#f-rent-val').textContent = '300만';
+      renderList();
+      toast('내 조건으로 걸렀습니다 — 보증금 5.5억, 월 300만 이하');
+    });
+    $('#preset-reset').addEventListener('click', () => {
+      state.status = '전체';
+      state.district = '전체';
+      state.q = '';
+      state.maxDeposit = 13;
+      state.maxRent = 420;
+      $('#f-district').value = '전체';
+      $('#f-q').value = '';
+      $('#f-deposit').value = 13;
+      $('#f-rent').value = 420;
+      $('#f-deposit-val').textContent = '제한 없음';
+      $('#f-rent-val').textContent = '제한 없음';
+      restyleDistricts(); renderChips(); renderList();
+    });
+
     $('#t-districts').addEventListener('change', e => { state.layers.districts = e.target.checked; restyleDistricts(); });
     $('#t-regions').addEventListener('change', e => { state.layers.regions = e.target.checked; restyleDistricts(); renderLegend(); });
     $('#t-radius').addEventListener('change', e => { state.layers.radius = e.target.checked; drawRings(); });

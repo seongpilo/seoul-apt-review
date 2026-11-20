@@ -129,6 +129,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
 }
 .searchfield { margin-bottom: 8px; }
 .ranges { display: grid; gap: 8px; margin-top: 2px; }
+.preset-row { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
 .range { display: flex; flex-direction: column; gap: 3px; }
 .range > span { font-size: 11.5px; color: var(--ink-3); font-weight: 600; display: flex; justify-content: space-between; }
 .range > span b { color: var(--ink); font-weight: 700; }
