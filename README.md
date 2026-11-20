@@ -83,3 +83,7 @@ data/apartments.json       후보 단지 데이터 (메타 + 배열)
 ## 배포
 
 `main` 브랜치 루트(`/`)를 GitHub Pages 소스로 사용합니다. `.nojekyll`이 있어 Jekyll 처리를 거치지 않습니다.
+
+- 배경 타일: **Esri Light Gray Canvas**(무키) — 실패 시 OSM 타일로 자동 전환하고 회색 필터를 입힙니다.
+- 지도 라이브러리: Leaflet 1.9.4 (unpkg CDN), 글꼴: Pretendard (jsDelivr CDN).
+- 자치구 경계는 레포 안의 GeoJSON이라 네트워크가 막혀도 경계·핀은 그려집니다.

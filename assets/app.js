@@ -207,10 +207,7 @@
       preferCanvas: true, zoomSnap: 0.5, wheelPxPerZoomLevel: 90
     }).setView([37.5326, 126.9908], 11);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd', maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-    }).addTo(map);
+    setupBaseLayer();
 
     map.createPane('districts').style.zIndex = 350;
     map.createPane('labels').style.zIndex = 360;
@@ -291,6 +288,26 @@
         map.getContainer().style.cursor = '';
         showModal('modal-new');
         toast('좌표를 채웠습니다. 나머지 정보를 입력하세요');
+      }
+    });
+  }
+
+  function setupBaseLayer() {
+    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxNativeZoom: 16, maxZoom: 19,
+      attribution: 'Tiles &copy; Esri — Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
+    }).addTo(map);
+    let errors = 0, swapped = false;
+    esri.on('tileerror', () => {
+      if (swapped) return;
+      if (++errors >= 5) {
+        swapped = true;
+        map.removeLayer(esri);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        $('#map').classList.add('osm-fallback');
+        $('#legend-note').textContent = '기본 타일을 OSM으로 전환했습니다 (Esri 타일 응답 없음)';
       }
     });
   }

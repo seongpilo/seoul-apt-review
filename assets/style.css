@@ -185,6 +185,7 @@ input[type="range"]::-moz-range-thumb { width: 13px; height: 13px; border-radius
 /* ---------- map ---------- */
 .mapwrap { position: relative; min-width: 0; min-height: 0; }
 #map { position: absolute; inset: 0; background: #eef1f5; }
+#map.osm-fallback .leaflet-tile-pane { filter: grayscale(.88) brightness(1.06) contrast(.92); }
 .leaflet-container { font-family: inherit; background: #eef1f5; }
 .leaflet-control-attribution { font-size: 10px !important; background: rgba(255,255,255,.82) !important; }
 .leaflet-control-zoom a { color: var(--ink-2) !important; }
