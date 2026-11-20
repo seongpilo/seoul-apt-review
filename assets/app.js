@@ -59,6 +59,7 @@
     q: '',
     maxDeposit: 13,
     maxRent: 420,
+    minRent: 0,
     sort: 'distance',
     selected: null,
     edit: false,
@@ -118,6 +119,26 @@
   }
 
   /* ---------------- static UI ---------------- */
+  function rentReadout() {
+    if (state.minRent > 0) return `${state.minRent}~${state.maxRent}만`;
+    return state.maxRent >= 420 ? '제한 없음' : `${state.maxRent}만`;
+  }
+
+  function setPresetActive(on) {
+    const btn = $('#preset-target');
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.classList.toggle('on', on);
+  }
+
+  // 슬라이더를 직접 만지면 프리셋의 최소 월세 조건은 해제한다.
+  function releaseRentFloor() {
+    state.minRent = 0;
+    if ($('#f-rent-cap')) $('#f-rent-cap').textContent = '최대 월세';
+    if ($('#f-rent-val')) $('#f-rent-val').textContent = rentReadout();
+    setPresetActive(false);
+  }
+
   function buildStaticUI() {
     const districtSel = $('#f-district');
     const names = Object.keys(DISTRICT_TO_REGION).sort((a, b) => a.localeCompare(b, 'ko'));
@@ -139,24 +160,28 @@
     $('#f-rent-val').textContent = '제한 없음';
     $('#f-deposit').addEventListener('input', e => {
       state.maxDeposit = Number(e.target.value);
+      releaseRentFloor();
       $('#f-deposit-val').textContent = state.maxDeposit >= 13 ? '제한 없음' : `${state.maxDeposit}억`;
       renderList();
     });
     $('#f-rent').addEventListener('input', e => {
       state.maxRent = Number(e.target.value);
-      $('#f-rent-val').textContent = state.maxRent >= 420 ? '제한 없음' : `${state.maxRent}만`;
+      releaseRentFloor();
       renderList();
     });
 
     $('#preset-target').addEventListener('click', () => {
       state.maxDeposit = 5.5;
       state.maxRent = 300;
+      state.minRent = 200;   // 상단 '월 200~300 조건' 통계와 같은 기준
       $('#f-deposit').value = 5.5;
       $('#f-rent').value = 300;
       $('#f-deposit-val').textContent = '5.5억';
-      $('#f-rent-val').textContent = '300만';
+      $('#f-rent-cap').textContent = '월세';
+      setPresetActive(true);
+      $('#f-rent-val').textContent = rentReadout();
       renderList();
-      toast('내 조건으로 걸렀습니다 — 보증금 5.5억, 월 300만 이하');
+      toast('내 조건으로 걸렀습니다 — 보증금 5.5억 이하, 월 200~300만');
     });
     $('#preset-reset').addEventListener('click', () => {
       state.status = '전체';
@@ -164,12 +189,15 @@
       state.q = '';
       state.maxDeposit = 13;
       state.maxRent = 420;
+      state.minRent = 0;
       $('#f-district').value = '전체';
       $('#f-q').value = '';
       $('#f-deposit').value = 13;
       $('#f-rent').value = 420;
       $('#f-deposit-val').textContent = '제한 없음';
+      $('#f-rent-cap').textContent = '최대 월세';
       $('#f-rent-val').textContent = '제한 없음';
+      setPresetActive(false);
       restyleDistricts(); renderChips(); renderList();
     });
 
@@ -319,8 +347,10 @@
   }
 
   function setupBaseLayer() {
+    // World_Light_Gray_Base only serves real tiles to z13; deeper zooms come back as
+    // "Map data not yet available" grey images, so cap native zoom and let Leaflet upscale.
     const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-      maxNativeZoom: 16, maxZoom: 19,
+      maxNativeZoom: 13, maxZoom: 19,
       attribution: 'Tiles &copy; Esri — Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
     }).addTo(map);
     let errors = 0, swapped = false;
@@ -451,6 +481,7 @@
     const p = apt.price || {};
     if (state.maxDeposit < 13 && Number(p.depositEok || 0) > state.maxDeposit) return false;
     if (state.maxRent < 420 && Number(p.rentManwon || 0) > state.maxRent) return false;
+    if (state.minRent > 0 && Number(p.rentManwon || 0) < state.minRent) return false;
     if (state.q) {
       const hay = [apt.name, apt.district, apt.dong, apt.address, apt.station && apt.station.name, apt.altStation, (apt.tags || []).join(' ')]
         .filter(Boolean).join(' ').toLowerCase();
